@@ -3,6 +3,9 @@ name: Upload from Google Drive
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   upload:
     runs-on: ubuntu-latest
@@ -23,5 +26,6 @@ jobs:
         with:
           tag_name: 2.0
           files: "Nidam Benchmark - Win x64 cli.zip"
+          overwrite: true 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
