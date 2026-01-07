@@ -22,9 +22,8 @@ jobs:
       - name: Upload to existing release
         uses: softprops/action-gh-release@v2
         with:
-          release_id: 273638614
+          tag_name: "2.0"
           files: "Nidam Benchmark - Win x64 cli.zip"
-          overwrite: true 
-          existing: true
+          overwrite_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
