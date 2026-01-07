@@ -10,22 +10,21 @@ jobs:
   upload:
     runs-on: ubuntu-latest
     steps:
+      - name: Install gdown
+        run: pip install gdown
+        
       - name: Download file from Google Drive
         run: |
           FILE_ID="15SPstaWTyDgmGLq88IDtD-fmr86dGaVG"
-          # FILENAME="Nidam-Benchmark-Win-x64-cli.zip"
           FILENAME="Nidam Benchmark - Win x64 cli.zip"
-          CONFIRM=$(curl -sc /tmp/cookie "https://drive.google.com/uc?export=download&id=${FILE_ID}" | \
-            grep -o 'confirm=[^&]*' | cut -d'=' -f2)
-          curl -Lb /tmp/cookie \
-            "https://drive.google.com/uc?export=download&confirm=${CONFIRM}&id=${FILE_ID}" \
-            -o "${FILENAME}"
+          gdown --id $FILE_ID -O "$FILENAME"
 
-      - name: Upload to GitHub Release
+      - name: Upload to existing release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: 2.0
           files: "Nidam Benchmark - Win x64 cli.zip"
           overwrite: true 
+          existing: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
