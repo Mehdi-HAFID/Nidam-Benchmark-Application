@@ -41,7 +41,7 @@ jobs:
       # ---------------------------
       - name: Configure rclone remote
         env:
-          GDRIVE_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_DRIVE_SERVICE_ACCOUNT }}
+          GOOGLE_DRIVE_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_DRIVE_SERVICE_ACCOUNT }}
         run: |
           echo "$GOOGLE_DRIVE_SERVICE_ACCOUNT" > sa.json
 
