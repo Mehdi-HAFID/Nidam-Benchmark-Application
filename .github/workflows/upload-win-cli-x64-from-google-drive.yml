@@ -3,8 +3,8 @@ name: Upload Win CLI x64 from Google Drive
 on:
   workflow_dispatch:
 
-# permissions:
-  # contents: write
+permissions:
+  contents: write
 
 jobs:
   upload-cli:
