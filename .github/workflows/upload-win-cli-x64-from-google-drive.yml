@@ -3,30 +3,71 @@ name: Upload Win CLI x64 from Google Drive
 on:
   workflow_dispatch:
 
-permissions:
-  contents: write
+# permissions:
+  # contents: write
 
 jobs:
   upload-cli:
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Install rclone
-        run: sudo apt-get update && sudo apt-get install -y rclone zip
-
-      - name: Write service account file
+      # ---------------------------
+      # Install latest rclone
+      # ---------------------------
+      - name: Install latest rclone
         run: |
-          # This assumes you have a service account JSON in your repo secrets
-          # Create a service account JSON file
-          echo "${{ secrets.GOOGLE_DRIVE_SERVICE_ACCOUNT }}" > service-account.json
+          curl -Of https://downloads.rclone.org/rclone-current-linux-amd64.zip
+          unzip rclone-current-linux-amd64.zip
+          cd rclone-*-linux-amd64
+          sudo cp rclone /usr/bin/
+          sudo chmod 755 /usr/bin/rclone
+          rclone version
+      
+      # - name: Install rclone
+      #   run: sudo apt-get update && sudo apt-get install -y rclone zip
 
-      - name: Configure rclone for Google Drive
-        run: |
-          rclone config create gdrive drive scope=drive.readonly service_account_file=service-account.json
+      # - name: Write service account file
+      #   run: |
+      #     # This assumes you have a service account JSON in your repo secrets
+      #     # Create a service account JSON file
+      #     echo "${{ secrets.GOOGLE_DRIVE_SERVICE_ACCOUNT }}" > service-account.json
 
-      - name: Copy folder from Google Drive
+      # - name: Configure rclone for Google Drive
+      #   run: |
+      #     rclone config create gdrive drive scope=drive.readonly service_account_file=service-account.json
+
+      # ---------------------------
+      # Setup service account remote
+      # ---------------------------
+      - name: Configure rclone remote
+        env:
+          GDRIVE_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_DRIVE_SERVICE_ACCOUNT }}
         run: |
-          # Copy the folder by ID into a local folder with the desired name
-          rclone copy gdrive: "Nidam Benchmark - Win x64 cli" --drive-root-folder-id=1Na7eFh0oBMnmihSDG26DvdIDFAKAwEMQ --create-empty-src-dirs
+          echo "$GOOGLE_DRIVE_SERVICE_ACCOUNT" > sa.json
+
+          cat > rclone.conf <<EOF
+          [gdrive]
+          type = drive
+          scope = drive.readonly
+          service_account_file = sa.json
+          root_folder_id =
+          team_drive =
+          EOF
+
+          cat rclone.conf
+
+      # - name: Copy folder from Google Drive
+      #   run: |
+      #     # Copy the folder by ID into a local folder with the desired name
+      #     rclone copy gdrive: "Nidam Benchmark - Win x64 cli" --drive-root-folder-id=1Na7eFh0oBMnmihSDG26DvdIDFAKAwEMQ --create-empty-src-dirs
+      
+      # ---------------------------
+      # Copy folder from Drive using folder ID
+      # ---------------------------
+      - name: Copy folder by ID
+        run: |
+          rclone --config=rclone.conf copy \
+            gdrive: "Nidam Benchmark - Win x64 cli" --drive-root-folder-id=1Na7eFh0oBMnmihSDG26DvdIDFAKAwEMQ --create-empty-src-dirs -vv
 
       - name: Zip the folder
         run: |
