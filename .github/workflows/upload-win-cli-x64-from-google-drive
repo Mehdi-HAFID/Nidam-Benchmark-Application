@@ -1,0 +1,39 @@
+name: Upload Win CLI x64 from Google Drive
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  upload-cli:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install rclone
+        run: sudo apt-get update && sudo apt-get install -y rclone zip
+
+      - name: Configure rclone for Google Drive
+        run: |
+          # This assumes you have a service account JSON in your repo secrets
+          # Create a service account JSON file
+          echo "${{ secrets.GOOGLE_DRIVE_SERVICE_ACCOUNT }}" > service-account.json
+          rclone config create gdrive drive scope drive.readonly service_account_file service-account.json
+
+      - name: Copy folder from Google Drive
+        run: |
+          # Copy the folder by ID into a local folder with the desired name
+          rclone copy gdrive:1Na7eFh0oBMnmihSDG26DvdIDFAKAwEMQ "Nidam Benchmark - Win x64 cli" --drive-use-id-for-shared --create-empty-src-dirs
+
+      - name: Zip the folder
+        run: |
+          zip -r "Nidam Benchmark - Win x64 cli.zip" "Nidam Benchmark - Win x64 cli"
+
+      - name: Upload to existing release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "2.0"
+          files: "Nidam Benchmark - Win x64 cli.zip"
+          overwrite_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
