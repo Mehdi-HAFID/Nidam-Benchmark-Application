@@ -22,19 +22,6 @@ jobs:
           sudo cp rclone /usr/bin/
           sudo chmod 755 /usr/bin/rclone
           rclone version
-      
-      # - name: Install rclone
-      #   run: sudo apt-get update && sudo apt-get install -y rclone zip
-
-      # - name: Write service account file
-      #   run: |
-      #     # This assumes you have a service account JSON in your repo secrets
-      #     # Create a service account JSON file
-      #     echo "${{ secrets.GOOGLE_DRIVE_SERVICE_ACCOUNT }}" > service-account.json
-
-      # - name: Configure rclone for Google Drive
-      #   run: |
-      #     rclone config create gdrive drive scope=drive.readonly service_account_file=service-account.json
 
       # ---------------------------
       # Setup service account remote
@@ -50,17 +37,10 @@ jobs:
           type = drive
           scope = drive.readonly
           service_account_file = sa.json
-          root_folder_id =
-          team_drive =
           EOF
 
           cat rclone.conf
 
-      # - name: Copy folder from Google Drive
-      #   run: |
-      #     # Copy the folder by ID into a local folder with the desired name
-      #     rclone copy gdrive: "Nidam Benchmark - Win x64 cli" --drive-root-folder-id=1Na7eFh0oBMnmihSDG26DvdIDFAKAwEMQ --create-empty-src-dirs
-      
       # ---------------------------
       # Copy folder from Drive using folder ID
       # ---------------------------
