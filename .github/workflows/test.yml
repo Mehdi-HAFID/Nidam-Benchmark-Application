@@ -1,0 +1,46 @@
+name: Upload Win CLI x64 from Google Drive
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  upload-cli:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # ---------------------------
+      # Install latest rclone
+      # ---------------------------
+      - name: Install latest rclone
+        run: |
+          curl -Of https://downloads.rclone.org/rclone-current-linux-amd64.zip
+          unzip rclone-current-linux-amd64.zip
+          cd rclone-*-linux-amd64
+          sudo cp rclone /usr/bin/
+          sudo chmod 755 /usr/bin/rclone
+          rclone version
+
+      # ---------------------------
+      # Setup service account remote
+      # ---------------------------
+      - name: Configure rclone remote
+        env:
+          GOOGLE_DRIVE_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_DRIVE_SERVICE_ACCOUNT }}
+        run: |
+          echo "$GOOGLE_DRIVE_SERVICE_ACCOUNT" > sa.json
+
+          cat > rclone.conf <<EOF
+          [gdrive]
+          type = drive
+          scope = drive.readonly
+          service_account_file = sa.json
+          EOF
+
+          cat rclone.conf
+
+      - name: Test rclone listing
+        run: |
+          rclone ls --config=rclone.conf gdrive:     
