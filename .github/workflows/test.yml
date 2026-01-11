@@ -1,4 +1,4 @@
-name: Upload Win CLI x64 from Google Drive
+name: test listing
 
 on:
   workflow_dispatch:
