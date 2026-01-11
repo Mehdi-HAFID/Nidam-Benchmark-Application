@@ -9,7 +9,10 @@ permissions:
 jobs:
   upload-cli:
     runs-on: ubuntu-latest
-    
+    env:
+      ZIP_NAME: ${{ secrets.ZIP_NAME_WIN_CLI_X64 }}
+      FOLDER_NAME: ${{ env.FOLDER_NAME_INSIDE_ZIP_WIN_CLI_X64 }}
+      RELEASE_TAG: ${{ env.RELEASE_TAG }}
     steps:
       # ---------------------------
       # Install latest rclone
@@ -45,19 +48,21 @@ jobs:
       # Copy folder from Drive using folder ID
       # ---------------------------
       - name: Copy folder by ID
+        env:
+          FOLDER_ID: ${{ secrets.GDRIVE_WIN_CLI_X64_FOLDER_ID }}
         run: |
           rclone --config=rclone.conf copy \
-            gdrive: "Nidam Benchmark - Win x64 cli" --drive-root-folder-id=1Na7eFh0oBMnmihSDG26DvdIDFAKAwEMQ --create-empty-src-dirs -vv
+            gdrive: "$FOLDER_NAME" --drive-root-folder-id="$FOLDER_ID" --create-empty-src-dirs -vv
 
       - name: Zip the folder
         run: |
-          zip -r "Nidam Benchmark - Win x64 cli.zip" "Nidam Benchmark - Win x64 cli"
+          zip -r "$ZIP_NAME" "$FOLDER_NAME"
 
       - name: Upload to existing release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: "2.0"
-          files: "Nidam Benchmark - Win x64 cli.zip"
+          tag_name: ${{ env.RELEASE_TAG }}
+          files: ${{ env.ZIP_NAME }}
           overwrite_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
