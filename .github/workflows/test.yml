@@ -43,4 +43,4 @@ jobs:
 
       - name: Test rclone listing
         run: |
-          rclone ls --config=rclone.conf gdrive:     
+          rclone ls --config=rclone.conf gdrive: --drive-root-folder-id=17FslR2581tP74QwUf5470DkxNGAlgpNK
