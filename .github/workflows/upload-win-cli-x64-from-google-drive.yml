@@ -10,7 +10,7 @@ jobs:
   upload-cli:
     runs-on: ubuntu-latest
     env:
-      ZIP_NAME: ${{ secrets.ZIP_NAME_WIN_CLI_X64 }}
+      ZIP_NAME: ${{ vars.ZIP_NAME_WIN_CLI_X64 }}
       FOLDER_NAME: ${{ vars.FOLDER_NAME_INSIDE_ZIP_WIN_CLI_X64 }}
       RELEASE_TAG: ${{ vars.RELEASE_TAG }}
     steps:
