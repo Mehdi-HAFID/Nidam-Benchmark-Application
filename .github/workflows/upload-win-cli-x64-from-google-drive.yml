@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ZIP_NAME: ${{ secrets.ZIP_NAME_WIN_CLI_X64 }}
-      FOLDER_NAME: ${{ env.FOLDER_NAME_INSIDE_ZIP_WIN_CLI_X64 }}
-      RELEASE_TAG: ${{ env.RELEASE_TAG }}
+      FOLDER_NAME: ${{ vars.FOLDER_NAME_INSIDE_ZIP_WIN_CLI_X64 }}
+      RELEASE_TAG: ${{ vars.RELEASE_TAG }}
     steps:
       # ---------------------------
       # Install latest rclone
