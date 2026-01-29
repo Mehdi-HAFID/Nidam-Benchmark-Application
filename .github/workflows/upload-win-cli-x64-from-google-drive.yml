@@ -1,0 +1,68 @@
+name: Upload Win CLI x64 from Google Drive
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  upload-cli:
+    runs-on: ubuntu-latest
+    env:
+      ZIP_NAME: ${{ vars.ZIP_NAME_WIN_CLI_X64 }}
+      FOLDER_NAME: ${{ vars.FOLDER_NAME_INSIDE_ZIP_WIN_CLI_X64 }}
+      RELEASE_TAG: ${{ vars.RELEASE_TAG }}
+    steps:
+      # ---------------------------
+      # Install latest rclone
+      # ---------------------------
+      - name: Install latest rclone
+        run: |
+          curl -Of https://downloads.rclone.org/rclone-current-linux-amd64.zip
+          unzip rclone-current-linux-amd64.zip
+          cd rclone-*-linux-amd64
+          sudo cp rclone /usr/bin/
+          sudo chmod 755 /usr/bin/rclone
+          rclone version
+
+      # ---------------------------
+      # Setup service account remote
+      # ---------------------------
+      - name: Configure rclone remote
+        env:
+          GOOGLE_DRIVE_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_DRIVE_SERVICE_ACCOUNT }}
+        run: |
+          echo "$GOOGLE_DRIVE_SERVICE_ACCOUNT" > sa.json
+
+          cat > rclone.conf <<EOF
+          [gdrive]
+          type = drive
+          scope = drive.readonly
+          service_account_file = sa.json
+          EOF
+
+          cat rclone.conf
+
+      # ---------------------------
+      # Copy folder from Drive using folder ID
+      # ---------------------------
+      - name: Copy folder by ID
+        env:
+          FOLDER_ID: ${{ secrets.GDRIVE_WIN_CLI_X64_FOLDER_ID }}
+        run: |
+          rclone --config=rclone.conf copy \
+            gdrive: "$FOLDER_NAME" --drive-root-folder-id="$FOLDER_ID" --create-empty-src-dirs -vv
+
+      - name: Zip the folder
+        run: |
+          zip -r "$ZIP_NAME" "$FOLDER_NAME"
+
+      - name: Upload to existing release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          files: ${{ env.ZIP_NAME }}
+          overwrite_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
